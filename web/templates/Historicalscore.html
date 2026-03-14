@@ -1,121 +1,158 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
+<html lang="zh-CN">
+<head>
     <meta charset="UTF-8">
-
-    <link rel="stylesheet" href="static/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="static/Flat-UI/dist/css/flat-ui.min.css"/>
-    <script src="static/Flat-UI/dist/js/vendor/jquery.min.js"></script>
-    <script src="static/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="static/Flat-UI/dist/js/flat-ui.min.js"></script>
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史评分 - 图书推荐系统</title>
+    <!-- 引入外部样式库 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Flat-UI/dist/css/flat-ui.min.css') }}">
+    <!-- 引入外部脚本库 -->
+    <script src="{{ url_for('static', filename='Flat-UI/dist/js/vendor/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='Flat-UI/dist/js/flat-ui.min.js') }}"></script>
+    <!-- 自定义样式 -->
     <style>
-        .row{
-            margin-left: 20px;
-            margin-right: 20px;;
+        /* 全局间距优化 */
+        .container {
+            margin-top: 20px;
         }
-        p {
+        /* 行间距和居中样式 */
+        .line-center {
+            line-height: 50px;
+            text-align: center;
             white-space: nowrap;
-            word-wrap: break-word;
-            word-break: break-all;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .line-center{
-            line-height:50px;
-            text-align: center;
-        }
-        .row input{
-            width: 50px;
-        }
-        .list-group-item:hover{
-            background: #27ae60;
-
-        }
-        .list-group-item div:first-child:hover{
-
+        /* 列表项悬停效果 */
+        .list-group-item {
             cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .list-group-item:hover {
+            background-color: #27ae60;
+            color: #fff;
+        }
+        /* 标题栏样式 */
+        .table-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: bold;
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .line-center {
+                line-height: 30px;
+                font-size: 14px;
+            }
+            .btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+        }
+        /* 书籍信息文本溢出处理 */
+        .book-info {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
-    <script>
-        $(function () {
-            $('#myTabs a').click(function (e) {
-                $(this).tab('show')
-            });
-        })
-        function myClick(bookid){
-           location.href = "/bookinfo?bookid="+bookid.toString();
-        }
-        function btnClick(){
-            alert("btn");
-            return false;
-        }
-        $(function(){
-        })
-    </script>
-
 </head>
 <body>
-<!-- Static navbar -->
-<div class="navbar navbar-default navbar-static-top" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">这什么东西</span>
-            </button>
-            <a class="navbar-brand" href="/">图书推荐系统</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="/">首页</a></li>
-                <li><a href="/historical">历史评分</a></li>
-                <li><a href="/user">个人中心</a></li>
-            </ul>
-            {% if not login %}
-                <ul class="nav navbar-nav navbar-right hidden-sm">
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                    <span class="sr-only">切换导航</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">图书推荐系统</a>
+            </div>
+            <!-- 导航菜单 -->
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/">首页</a></li>
+                    <li class="active"><a href="/historical">历史评分</a></li>
+                    <li><a href="/user">个人中心</a></li>
+                </ul>
+                <!-- 登录/注销菜单 -->
+                {% if not login %}
+                <ul class="nav navbar-nav navbar-right">
                     <li><a href="/loginForm">登录</a></li>
                     <li><a href="/registerationForm">注册</a></li>
-                    <li>
-                        <a href="/order"><span class="glyphicon glyphicon-shopping-cart">书单</span></a></li>
                 </ul>
-            {% else %}
-                <ul class="nav navbar-nav navbar-right hidden-sm">
-                    <li><a>{{ useid }}</a></li>
+                {% else %}
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="javascript:;">{{ useid }}</a></li>
                     <li><a href="/logout">注销</a></li>
-                    <li>
-                        <a href="/order"><span class="glyphicon glyphicon-shopping-cart">书单</span></a></li>
                 </ul>
-            {% endif %}
-        </div><!--/.nav-collapse -->
-    </div>
-</div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
 
-<div class="container">
-    <div class="row thumbnail center">
-        <div class="col-sm-12">
-            <h1 class="text-center" style="margin-bottom: 30px">历史评分</h1>
-        </div>
-        <div class="col-sm-12 thumbnail">
-            <div class="col-sm-3 line-center">编号</div>
-            <div class="col-sm-2 line-center">名称</div>
-            <div class="col-sm-2 line-center">作者</div>
-            <div class="col-sm-2 line-center">历史评论分数</div>
-            <div class="col-sm-3 line-center">操作</div>
-        </div>
-        <div class="list-group">
-            {% for book in books %}
-            <div class="col-sm-12  list-group-item" onclick="myClick('{{book[3]}}')">
-                <div class="col-sm-3 line-center" >{{book[3]}}</div>
-                <div class="col-sm-2 line-center"><p>{{book[0]}}</p></div>
-                <div class="col-sm-2 line-center"><p>{{book[1]}}</p></div>
-                <div class="col-sm-2 line-center">{{book[4]}}</div>
-                <div class="col-sm-3 line-center">
-                <button class="btn btn-success">查看详情</button>
+    <!-- 主内容区域 -->
+    <div class="container">
+        <div class="row">
+            <!-- 页面标题 -->
+            <div class="col-xs-12 text-center">
+                <h1>历史评分</h1>
+                <hr>
+            </div>
+
+            <!-- 评分列表 -->
+            <div class="col-xs-12">
+                <!-- 列表表头 -->
+                <div class="row table-header">
+                    <div class="col-xs-2 col-sm-2 line-center">编号</div>
+                    <div class="col-xs-3 col-sm-3 line-center">名称</div>
+                    <div class="col-xs-3 col-sm-3 line-center">作者</div>
+                    <div class="col-xs-2 col-sm-1 line-center">评分</div>
+                    <div class="col-xs-2 col-sm-3 line-center">操作</div>
+                </div>
+
+                <!-- 列表内容 -->
+                <div class="list-group">
+                    {% if books %}
+                        {% for book in books %}
+                        <div class="list-group-item row" onclick="myClick('{{ book[3] }}')">
+                            <div class="col-xs-2 col-sm-2 line-center">{{ book[3] }}</div> <!-- BookID -->
+                            <div class="col-xs-3 col-sm-3 line-center book-info">{{ book[0] }}</div> <!-- BookTitle -->
+                            <div class="col-xs-3 col-sm-3 line-center book-info">{{ book[1] }}</div> <!-- BookAuthor -->
+                            <div class="col-xs-2 col-sm-1 line-center">{{ book[4] }}</div> <!-- Rating -->
+                            <div class="col-xs-2 col-sm-3 line-center">
+                                <button class="btn btn-success">查看详情</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- 空数据提示 -->
+                        <div class="list-group-item text-center">
+                            <p class="text-muted">暂无历史评分记录</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
+        </div>
     </div>
-</div>
 
+    <!-- 脚本 -->
+    <script>
+        // 跳转到书籍详情页
+        function myClick(bookid) {
+            if (bookid) {
+                window.location.href = "/bookinfo?bookid=" + encodeURIComponent(bookid);
+            }
+        }
+
+        // 阻止按钮点击时触发父元素的点击事件
+        $(document).on('click', '.btn', function(e) {
+            e.stopPropagation();
+        });
+    </script>
 </body>
 </html>
