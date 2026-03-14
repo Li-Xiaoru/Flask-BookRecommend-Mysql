@@ -125,19 +125,17 @@ def root():
 # =============================
 # 历史评分
 # =============================
+
+
 @app.route("/historical")
 def historical():
-    """
-    查看用户历史评分（需登录）
-    """
-    # 未登录则跳转到登录页
+
+    # 未登录跳转登录页
     if 'userid' not in session:
         return redirect(url_for('loginForm'))
 
     userid = session['userid']
-    books = []
 
-    # 查询历史评分数据
     sql = """
     SELECT 
         b.BookTitle,
@@ -145,26 +143,30 @@ def historical():
         b.BookID,
         r.Rating
     FROM Bookrating r
-    LEFT JOIN Books b ON r.BookID = b.BookID
+    LEFT JOIN Books b
+        ON r.BookID = b.BookID
     WHERE r.UserID = %s
     """
 
+    books = []
+
     try:
+
         data = mysql.fetchall_db(sql, (userid,))
-        # 转换为列表格式
+
+        # 转换为列表
         books = [[v for k, v in row.items()] for row in data]
+
     except Exception as e:
-        logger.exception(f"get historical rating error: {str(e)}")
+
+        logger.exception("historical error {}".format(e))
 
     return render_template(
-
         "Historicalscore.html",
         login=True,
         useid=userid,
         books=books
     )
-
-
 # =============================
 # 登录页
 # =============================
